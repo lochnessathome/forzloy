@@ -12,3 +12,8 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: 12345678
+
+  billing:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
