@@ -1,0 +1,14 @@
+services:
+
+  psql:
+    image: postgres:17.5
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: 12345678
+
+  mongo:
+    image: dockerhub.timeweb.cloud/mongo:7.0.22
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: 12345678
