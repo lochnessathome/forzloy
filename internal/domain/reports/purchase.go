@@ -2,12 +2,12 @@ package reports
 
 import (
 	"context"
-	"fmt"
 	"strconv"
 
 	"github.com/jackc/pgx/v5/pgconn"
 
 	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 const (
@@ -19,6 +19,7 @@ const (
 
 	financialOperationInitState = "frozen"
 	financialOperationPaidState = "paid"
+	financialOperationRetState  = "returned"
 
 	mnCollection = "reports"
 )
@@ -33,11 +34,6 @@ type MnReport struct {
 
 func (r *Reports) Purchase(reportId, userId string) (bool, bool, error) {
 
-	err := r.showReportInMongo(reportId, userId)
-	if err != nil {
-		return false, false, err
-	}
-
 	paid, err := r.alreadyPaid(reportId, userId)
 	if err != nil {
 		return false, false, err
@@ -48,7 +44,22 @@ func (r *Reports) Purchase(reportId, userId string) (bool, bool, error) {
 
 	err = r.createPayment(reportId, userId)
 	if err == nil {
-		return true, false, nil
+		err = r.markPurchased(reportId, userId)
+		if err == nil {
+			err = r.markPaid(reportId, userId)
+			if err != nil {
+				return false, false, err
+			}
+
+			return true, false, nil
+		}
+
+		err = r.returnPayment(reportId, userId)
+		if err != nil {
+			return false, false, err
+		}
+
+		return false, false, nil
 	}
 	if err != nil && negativeBalanceError(err) {
 		return false, true, err
@@ -59,7 +70,22 @@ func (r *Reports) Purchase(reportId, userId string) (bool, bool, error) {
 
 	err = r.rewritePayment(reportId, userId)
 	if err == nil {
-		return true, false, nil
+		err = r.markPurchased(reportId, userId)
+		if err == nil {
+			err = r.markPaid(reportId, userId)
+			if err != nil {
+				return false, false, err
+			}
+
+			return true, false, nil
+		}
+
+		err = r.returnPayment(reportId, userId)
+		if err != nil {
+			return false, false, err
+		}
+
+		return false, false, nil
 	}
 	if err != nil && negativeBalanceError(err) {
 		return false, true, err
@@ -141,28 +167,65 @@ func (r *Reports) rewritePayment(reportId, userId string) error {
 	return nil
 }
 
-func (r *Reports) showReportInMongo(reportId, userId string) error {
+func (r *Reports) returnPayment(reportId, userId string) error {
+	tx, err := r.pgPool.Begin(context.Background())
+	if err != nil {
+		return err
+	}
+
+	defer tx.Rollback(context.Background())
+
+	// NOTE: возвращаю фиксированную стоимость
+	uq := `UPDATE users SET balance = balance + $1 WHERE id = $2`
+
+	_, err = tx.Exec(context.Background(), uq, defaultCost, userId)
+	if err != nil {
+		return err
+	}
+
+	fuq := `UPDATE financial_operations SET state = $1 WHERE report_id = $2 AND user_id = $3 AND state <> $1`
+
+	_, err = tx.Exec(context.Background(), fuq, financialOperationRetState, reportId, userId)
+	if err != nil {
+		return err
+	}
+
+	err = tx.Commit(context.Background())
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *Reports) markPaid(reportId, userId string) error {
+	fuq := `UPDATE financial_operations SET state = $1 WHERE report_id = $2 AND user_id = $3 AND state = $4`
+
+	_, err := r.pgPool.Exec(context.Background(), fuq, financialOperationPaidState, reportId, userId, financialOperationInitState)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *Reports) markPurchased(reportId, userId string) error {
 	uid, err := strconv.ParseInt(userId, 10, 64)
 	if err != nil {
 		return err
 	}
 
 	var result MnReport
+
+	opts := options.FindOneAndUpdate().SetUpsert(false)
 	filter := bson.M{"report_id": reportId, "user_id": uid}
+	update := bson.M{"$set": bson.M{"is_purchased": true}}
 
-	err = r.mnDatabase.Collection(mnCollection).FindOne(context.TODO(), filter).Decode(&result)
-
+	err = r.mnDatabase.Collection(mnCollection).FindOneAndUpdate(context.Background(), filter, update, opts).Decode(&result)
 	if err != nil {
 		return err
 	}
 
-	res, _ := bson.MarshalExtJSON(result, false, false)
-	fmt.Println(string(res))
-
-	return nil
-}
-
-func (r *Reports) markPurchased(reportId, userId string) error {
 	return nil
 }
 
