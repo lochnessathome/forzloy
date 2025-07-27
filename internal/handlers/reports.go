@@ -12,7 +12,7 @@ func (h *Handler) ReportsPurchse(c echo.Context) error {
 	reportId := c.Param("report_id")
 	userId := ParseJWTSubject(c)
 
-	r := reports.New(h.pgPool)
+	r := reports.New(h.pgPool, h.mnDatabase)
 
 	paid, negativeBalance, err := r.Purchase(reportId, userId)
 	if err != nil && !negativeBalance {

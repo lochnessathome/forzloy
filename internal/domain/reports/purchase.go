@@ -2,8 +2,12 @@ package reports
 
 import (
 	"context"
+	"fmt"
+	"strconv"
 
 	"github.com/jackc/pgx/v5/pgconn"
+
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 const (
@@ -15,9 +19,25 @@ const (
 
 	financialOperationInitState = "frozen"
 	financialOperationPaidState = "paid"
+
+	mnCollection = "reports"
 )
 
+type MnReport struct {
+	Id                bson.ObjectID `bson:"_id"`
+	ReportId          string        `bson:"report_id"`
+	UserId            int           `bson:"user_id"`
+	ClientGeneratedId string        `bson:"client_generated_id"`
+	IsPurchased       bool          `bson:"is_purchased"`
+}
+
 func (r *Reports) Purchase(reportId, userId string) (bool, bool, error) {
+
+	err := r.showReportInMongo(reportId, userId)
+	if err != nil {
+		return false, false, err
+	}
+
 	paid, err := r.alreadyPaid(reportId, userId)
 	if err != nil {
 		return false, false, err
@@ -118,6 +138,31 @@ func (r *Reports) rewritePayment(reportId, userId string) error {
 		return err
 	}
 
+	return nil
+}
+
+func (r *Reports) showReportInMongo(reportId, userId string) error {
+	uid, err := strconv.ParseInt(userId, 10, 64)
+	if err != nil {
+		return err
+	}
+
+	var result MnReport
+	filter := bson.M{"report_id": reportId, "user_id": uid}
+
+	err = r.mnDatabase.Collection(mnCollection).FindOne(context.TODO(), filter).Decode(&result)
+
+	if err != nil {
+		return err
+	}
+
+	res, _ := bson.MarshalExtJSON(result, false, false)
+	fmt.Println(string(res))
+
+	return nil
+}
+
+func (r *Reports) markPurchased(reportId, userId string) error {
 	return nil
 }
 

@@ -1,0 +1,32 @@
+[
+    {
+        "report_id": "883d4fa0-7a7f-44ed-89f8-30b4b30413ff",
+        "user_id": 10,
+        "client_generated_id": null,
+        "is_purchased": false
+    },
+    {
+        "report_id": "00603818-925e-4667-88f9-1ba91a87811c",
+        "user_id": 11,
+        "client_generated_id": null,
+        "is_purchased": false
+    },
+    {
+        "report_id": "4e18ad0b-bf2c-4b41-8adf-7105760b2c81",
+        "user_id": 12,
+        "client_generated_id": null,
+        "is_purchased": false
+    },
+    {
+        "report_id": "80a1f5f0-4cba-4b5c-9bbb-3ddc845b128d",
+        "user_id": 13,
+        "client_generated_id": null,
+        "is_purchased": false
+    },
+    {
+        "report_id": "0fc1b29e-bdd0-4db7-99c0-061500a3f962",
+        "user_id": null,
+        "client_generated_id": "4d21db79-0f23-46a2-a314-9a63289264f3",
+        "is_purchased": false
+    }
+]
