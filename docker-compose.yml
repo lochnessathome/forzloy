@@ -24,4 +24,5 @@ services:
     links:
       - psql
     environment:
-      DATABASE_URL: postgres://app:12345678@psql:5432/billing
+      DATABASE_URL: postgres://app:12345678@psql:5432/billing?sslmode=disable
+      JWT_SECRET: 17e69bf3356040d045e453e1acf5c358f04c851cb33dcccdae1de650306952e9
