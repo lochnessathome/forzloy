@@ -2,15 +2,9 @@ package auth
 
 import (
 	"context"
-	"os"
-	"strconv"
-	"time"
 
-	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
-
-const accessTokenLifetime = 60 * 24 * time.Hour
 
 func (a *Auth) Register(login, password string) (string, error) {
 
@@ -34,20 +28,7 @@ func (a *Auth) Register(login, password string) (string, error) {
 		return "", err
 	}
 
-	tn := time.Now()
-	te := tn.Add(accessTokenLifetime)
-
-	claims := jwt.RegisteredClaims{
-		ExpiresAt: jwt.NewNumericDate(te),
-		IssuedAt:  jwt.NewNumericDate(tn),
-		NotBefore: jwt.NewNumericDate(tn),
-		Subject:   strconv.FormatInt(id, 10),
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-	secret := os.Getenv("JWT_SECRET")
-	tokenString, err := token.SignedString([]byte(secret))
+	tokenString, te, tn, err := GenAccessToken(id)
 	if err != nil {
 		return "", err
 	}
