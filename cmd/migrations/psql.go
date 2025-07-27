@@ -13,9 +13,9 @@ const psqlMigrationsPath = "file://migrations/psql"
 
 func PsqlUp() error {
 	dbUrl := os.Getenv("DATABASE_URL")
-        if dbUrl == "" {
-                return fmt.Errorf("Empty DATABASE_URL environment variable")
-        }
+	if dbUrl == "" {
+		return fmt.Errorf("Empty DATABASE_URL environment variable")
+	}
 
 	m, err := migrate.New(psqlMigrationsPath, dbUrl)
 	if err != nil {
@@ -23,7 +23,7 @@ func PsqlUp() error {
 	}
 
 	err = m.Up()
-	if err != nil {
+	if err != nil && err != migrate.ErrNoChange {
 		return err
 	}
 
