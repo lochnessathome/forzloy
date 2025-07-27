@@ -55,12 +55,12 @@ func main() {
 
 	h := handlers.New(pgPool, mnClient)
 
-	gAuth := e.Group("/api/auth")
-
-	gAuth.POST("/register", h.AuthRegister)
-	gAuth.POST("/login", h.AuthLogin)
+	e.POST("/api/auth/register", h.AuthRegister)
+	e.POST("/api/auth/login", h.AuthLogin)
 
 	e.POST("/api/reports/:report_id/purchase", h.ReportsPurchse)
+	e.POST("/api/user/link-anonymous", h.ReportsLinkAnonymous)
+	e.GET("/api/user/reports", h.ReportsList)
 
 	e.Logger.Fatal(e.Start(":" + httpPort))
 }

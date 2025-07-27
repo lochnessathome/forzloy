@@ -25,6 +25,14 @@ curl -d '{"login":"lolk", "password":"12345678"}' -H "Content-Type: application/
 
 curl -H "Content-Type: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMyIsImV4cCI6MTc1ODczMzAxNCwibmJmIjoxNzUzNTQ5MDE0LCJpYXQiOjE3NTM1NDkwMTR9.LOHHbwQ6jq_NvCV18x5uV2FVY1uET8aOEsj4fI2KHI8" -X POST http://localhost:8080/api/reports/66a4b08e-1e2a-41df-b957-cfbb87b0cde8/purchase
 
+## Привязать отчёт к польователю
+
+curl -d '{"client_generated_id": "4d21db79-0f23-46a2-a314-9a63289264f3"}' -H "Content-Type: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMyIsImV4cCI6MTc1ODczMzAxNCwibmJmIjoxNzUzNTQ5MDE0LCJpYXQiOjE3NTM1NDkwMTR9.LOHHbwQ6jq_NvCV18x5uV2FVY1uET8aOEsj4fI2KHI8" -X POST http://localhost:8080/api/user/link-anonymous 
+
+## Список отчётов
+
+curl -d '{"limit": 3}' -H "Content-Type: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMyIsImV4cCI6MTc1ODczMzAxNCwibmJmIjoxNzUzNTQ5MDE0LCJpYXQiOjE3NTM1NDkwMTR9.LOHHbwQ6jq_NvCV18x5uV2FVY1uET8aOEsj4fI2KHI8" -X GET http://localhost:8080/api/user/reports 
+
 ### Для разработки
 
 Опционально можно установить https://github.com/golang-migrate/migrate/tree/master/cmd/migrate , это консольная утилита, помогающая создавать файлы миграций.

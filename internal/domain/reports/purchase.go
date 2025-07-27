@@ -20,17 +20,7 @@ const (
 	financialOperationInitState = "frozen"
 	financialOperationPaidState = "paid"
 	financialOperationRetState  = "returned"
-
-	mnCollection = "reports"
 )
-
-type MnReport struct {
-	Id                bson.ObjectID `bson:"_id"`
-	ReportId          string        `bson:"report_id"`
-	UserId            int           `bson:"user_id"`
-	ClientGeneratedId string        `bson:"client_generated_id"`
-	IsPurchased       bool          `bson:"is_purchased"`
-}
 
 func (r *Reports) Purchase(reportId, userId string) (bool, bool, error) {
 
