@@ -6,6 +6,7 @@ import (
 
 	"billing/cmd/migrations"
 	"billing/internal/handlers"
+	"billing/internal/mng"
 	"billing/internal/psql"
 
 	"github.com/go-playground/validator"
@@ -46,7 +47,13 @@ func main() {
 		os.Exit(1)
 	}
 
-	h := handlers.New(pgPool)
+	mnClient, err := mng.New()
+	if err != nil {
+		e.Logger.Error(err)
+		os.Exit(1)
+	}
+
+	h := handlers.New(pgPool, mnClient)
 
 	gAuth := e.Group("/api/auth")
 

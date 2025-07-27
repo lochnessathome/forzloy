@@ -12,9 +12,9 @@ import (
 const psqlMigrationsPath = "file://migrations/psql"
 
 func PsqlUp() error {
-	dbUrl := os.Getenv("DATABASE_URL")
+	dbUrl := os.Getenv("PSQL_DATABASE_URL")
 	if dbUrl == "" {
-		return fmt.Errorf("Empty DATABASE_URL environment variable")
+		return fmt.Errorf("Empty PSQL_DATABASE_URL environment variable")
 	}
 
 	m, err := migrate.New(psqlMigrationsPath, dbUrl)

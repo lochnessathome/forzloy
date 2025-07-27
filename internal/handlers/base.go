@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"billing/internal/mng"
 	"billing/internal/psql"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -8,11 +9,12 @@ import (
 )
 
 type Handler struct {
-	pgPool *psql.Pool
+	pgPool     *psql.Pool
+	mnDatabase *mng.Database
 }
 
-func New(pgPool *psql.Pool) *Handler {
-	return &Handler{pgPool: pgPool}
+func New(pgPool *psql.Pool, mnDatabase *mng.Database) *Handler {
+	return &Handler{pgPool: pgPool, mnDatabase: mnDatabase}
 }
 
 func ParseJWTSubject(c echo.Context) string {

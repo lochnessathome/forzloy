@@ -8,12 +8,12 @@ services:
       POSTGRES_USER: app
       POSTGRES_PASSWORD: 12345678
 
-#  mongo:
-#    image: dockerhub.timeweb.cloud/mongo:7.0.22
-#    restart: always
-#    environment:
-#      MONGO_INITDB_ROOT_USERNAME: app
-#      MONGO_INITDB_ROOT_PASSWORD: 12345678
+  mongo:
+    image: dockerhub.timeweb.cloud/mongo:7.0.22
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: app
+      MONGO_INITDB_ROOT_PASSWORD: 12345678
 
   billing:
     build:
@@ -24,5 +24,7 @@ services:
     links:
       - psql
     environment:
-      DATABASE_URL: postgres://app:12345678@psql:5432/billing?sslmode=disable
+      PSQL_DATABASE_URL: postgres://app:12345678@psql:5432/billing?sslmode=disable
+      MONGO_DATABASE_URL: mongodb://app:12345678@mongo:27017
+      MONGO_DATABASE_NAME: billing
       JWT_SECRET: 17e69bf3356040d045e453e1acf5c358f04c851cb33dcccdae1de650306952e9

@@ -13,9 +13,9 @@ type Pool struct {
 }
 
 func New() (*Pool, error) {
-	dbUrl := os.Getenv("DATABASE_URL")
+	dbUrl := os.Getenv("PSQL_DATABASE_URL")
 	if dbUrl == "" {
-		return nil, fmt.Errorf("Empty DATABASE_URL environment variable")
+		return nil, fmt.Errorf("Empty PSQL_DATABASE_URL environment variable")
 	}
 
 	pool, err := pgxpool.New(context.Background(), dbUrl)
